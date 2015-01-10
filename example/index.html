@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mr. Uploader</title>
+    <link rel="stylesheet" type="text/css" href="dist/css/mr-uploader.min.css">
+</head>
+<body>
+
+    <button class="uploader">Upload Cover</button>
+    <button class="uploader" id="photos-input">Upload Photos</button>
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="dist/js/mr-uploader.all.min.js"></script>
+
+    <script type="text/javascript">
+        upload = $(".uploader").mrUploader({uploadUrl: '/example/upload.php'});
+        console.log(upload);
+    </script>
+</body>
+</html>
