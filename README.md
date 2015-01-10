@@ -38,7 +38,7 @@ jQuery plugin for simplified photo cropping and uploading.
 - Access the photos uploaded using the `uploads` key on the instance
 - A sample of an `upload` is the following:
 
-```json
+```javascript
 {
     "response": {}, // The upload response from the server
     "$image", // A jQuery image object representing the uploaded image
@@ -46,8 +46,8 @@ jQuery plugin for simplified photo cropping and uploading.
         "width": 1920, // Original image width
         "height": 1080, // Original image height
         "size": 140210, // Original image size in bytes
-        "type": "image/png", // Image MIME type
-        "name": "my-image.png" // Original image file name on client's disk
+        "type": 'image/png', // Image MIME type
+        "name": 'my-image.png' // Original image file name on client's disk
     },
     "crop": {
         "width": 123, // Crop width
