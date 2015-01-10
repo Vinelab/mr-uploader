@@ -4,7 +4,7 @@
 
         defaults:
             multiple: true
-            cropping: false
+            cropping: true
             uploadUrl: '/upload.php'
             crop:
                 boxWidth: 800
@@ -20,16 +20,13 @@
             @addContent()
             @$el.click @onElementClick
             @setStaged(null)
+            # All the uploaded stuff will live here
+            @uploads = []
 
         onElementClick: =>
             @showFullscreen()
 
-        addContent: ->
-            @$container = $('<div/>')
-                .hide()
-                .addClass('mr-uploader-fullscreen-mode')
-                .css('text-align', 'center')
-
+        getHeaderContent: =>
             header = $('<div/>')
 
             close = $('<h1><a href="#" class="mr-uploader-fullscreen-close">&times</a></h1>')
@@ -39,28 +36,41 @@
             header.append(close)
             header.append(title)
 
-            # Add header
-            @$container.append(header)
+            return header
 
-            # Cropping Area
+        getCroppingAreaContent: =>
             crop = $('<div />')
 
+            # Add input field
             @$input = $('<input type="file" accept="image/*" />').css('padding-bottom', '10px')
             @$input.change @onUploaderFileChanged
-            # Add input field
             crop.append(@$input)
 
-            @$photos = $('<div id="mr-uploader-images">&nbsp;</div>')
             # Add photos container
+            @$photos = $('<div id="mr-uploader-images">&nbsp;</div>')
             crop.append(@$photos)
 
+            # Add upload button
             upload = $('<button>Upload</button>')
             upload.click @onUploadClick
+
             crop.append(upload)
 
-            # Add the upload button
-            @$container.append(crop)
+            return crop
 
+        addContent: ->
+            @$container = $('<div/>')
+                .hide()
+                .addClass('mr-uploader-fullscreen-mode')
+                .css('text-align', 'center')
+
+            # Add header
+            @$container.append(@getHeaderContent())
+            # draw the cropping area
+            @$croppingArea = @getCroppingAreaContent()
+            # Add the cropping area
+            @$container.append(@$croppingArea)
+            # separator
             @$container.append('<hr />')
 
             @$previews = $('<div />')
@@ -90,18 +100,39 @@
             return alert('Please choose a photo to upload') if not @staged?
 
             url = @$options.uploadUrl
-            photo = @staged.image.attr('src')
+            photo = @staged.$image.attr('src')
             meta = @staged.meta
+            crop = @staged.crop
+
+            $overlay = @getPreviewOverlay()
 
             request = $.ajax({
                 type: 'POST',
                 url: url,
-                data: {photo: photo, meta: meta}
                 cache: false
+                dataType: 'json'
+                data: {photo: photo, meta: meta, crop: crop}
+                beforeSend: (xhr, settings)=>
+                    # remove any previous overlays (if any)
+                    @$preview.find('.mr-uploader-preview-overlay').each -> this.remove()
+                    # add the overlay to the preview
+                    @$preview.prepend($overlay)
+                    # disable cropping
+                    @Jcrop.disable()
             })
 
-            request.done (response, status, xhr)-> console.log response
-            request.fail (xhr, status, error)-> console.error error
+            request.done (response, status, xhr)=>
+                @staged.response = response
+                # remove staged photo
+                @uploads.push(@staged)
+                @setStaged(null)
+                # reset the cropping area
+                @$croppingArea.html(@getCroppingAreaContent())
+                $overlay.html('&#10003')
+            request.fail (xhr, status, error)=>
+                $overlay.addClass('error').html('&times; Upload failed, please retry')
+
+        getPreviewOverlay: -> $('<div class="mr-uploader-preview-overlay" />').append('<div class="mr-uploader-spinner"><div class="mr-uploader-spinner-bounce1"></div><div class="mr-uploader-spinner-bounce2"></div><div class="mr-uploader-spinner-bounce3"></div></div>')
 
         onUploaderFileChanged: (e)=>
             input = @$input[0]
@@ -109,24 +140,27 @@
                 reader = new FileReader()
                 reader.onload = @onReaderLoad
                 reader.readAsDataURL(file) for file in input.files
+                @$input.hide()
 
         onReaderLoad: (e)=>
             img = $('<img src="'+e.target.result+'" />')
             crop = @$options.crop
             meta = @getStagedFileMeta()
 
-            preview = $('<div class="mr-uploader-preview"/>')
+            @$preview = $('<div class="mr-uploader-preview"/>')
 
             previewImage = $('<img />').attr('src', e.target.result)
-            preview.html(previewImage)
+            @$preview.html(previewImage)
 
-            @$previews.prepend(preview)
+            @$previews.prepend(@$preview)
 
             crop.onSelect = (crop)=> @onCroppingSelected(crop, img, meta)
             crop.onChange = (crop)=> @changePreview(crop, previewImage)
 
             @$photos.html(img)
-            img.Jcrop(crop)
+
+            self = @
+            img.Jcrop crop, -> self.Jcrop = this
 
             @updateElementText()
 
