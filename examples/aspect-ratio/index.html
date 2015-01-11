@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mr. Uploader</title>
+    <link rel="stylesheet" type="text/css" href="/dist/css/mr-uploader.min.css">
+</head>
+<body>
+
+    <button class="uploader" onclick="uploadWithSquareRatio()">Upload Square</button>
+    <button class="uploader" onclick="uploadWithPortraitRatio()">Upload Portrait</button>
+    <button class="uploader" onclick="uploadWithLandscapeRatio()">Upload Landscpae</button>
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="/dist/js/mr-uploader.all.min.js"></script>
+
+    <script type="text/javascript">
+        function uploadWithSquareRatio()
+        {
+            window.upload.setAspectRatio('square');
+            window.upload.show();
+        }
+
+        function uploadWithPortraitRatio()
+        {
+            window.upload.setAspectRatio('portrait');
+            window.upload.show();
+        }
+
+        function uploadWithLandscapeRatio()
+        {
+            window.upload.setAspectRatio('landscape');
+            window.upload.show();
+        }
+    </script>
+
+    <script type="text/javascript">
+        window.upload = $(".uploader").mrUploader({uploadUrl: '/examples/upload.php', onClick: false});
+        console.log(window.upload);
+    </script>
+</body>
+</html>
