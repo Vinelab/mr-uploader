@@ -22,7 +22,7 @@ module.exports = function(grunt) {
             stripBanners: true
         },
         dist: {
-            src: ['vendors/jquery.Jcrop.min.js', 'dist/mr-uploader.js'],
+            src: ['vendors/jquery.Jcrop.min.js', 'dist/js/mr-uploader.js'],
             dest: 'dist/js/mr-uploader.all.js'
         },
         css: {
