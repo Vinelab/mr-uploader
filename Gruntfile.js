@@ -68,7 +68,14 @@ module.exports = function(grunt) {
     grunt.config('watch', {
         coffee: {
             files: ['src/**/*'],
-            tasks: ['coffee', 'concat', 'uglify', 'cssmin']
+            tasks: ['clean', 'coffee', 'concat', 'uglify', 'cssmin']
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.config('clean', {
+        css: {
+            src: ['dist/css']
         }
     });
 
