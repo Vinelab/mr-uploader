@@ -7,7 +7,9 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
     MrUploader.prototype.defaults = {
       multiple: true,
       cropping: true,
+      onClick: true,
       uploadUrl: '/upload.php',
+      aspectRatio: 'landscape',
       crop: {
         boxWidth: 800,
         aspectRatio: 3 / 2,
@@ -20,11 +22,17 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 
     function MrUploader(el, options) {
       this.hideFullscreen = __bind(this.hideFullscreen, this);
+      this.setAspectRatio = __bind(this.setAspectRatio, this);
+      this.setLandscapeAspectRatio = __bind(this.setLandscapeAspectRatio, this);
+      this.setPortraitAspectRatio = __bind(this.setPortraitAspectRatio, this);
+      this.setSquareAspectRatio = __bind(this.setSquareAspectRatio, this);
+      this.show = __bind(this.show, this);
       this.showFullscreen = __bind(this.showFullscreen, this);
       this.onCloseClick = __bind(this.onCloseClick, this);
-      this.updateElementText = __bind(this.updateElementText, this);
       this.getStagedFileMeta = __bind(this.getStagedFileMeta, this);
       this.changePreview = __bind(this.changePreview, this);
+      this.getPreviewHeight = __bind(this.getPreviewHeight, this);
+      this.getPreviewWidth = __bind(this.getPreviewWidth, this);
       this.onReaderLoad = __bind(this.onReaderLoad, this);
       this.onUploaderFileChanged = __bind(this.onUploaderFileChanged, this);
       this.onUploadClick = __bind(this.onUploadClick, this);
@@ -36,7 +44,9 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.$el = $(el);
       this.$options = $.extend({}, this.defaults, options);
       this.addContent();
-      this.$el.click(this.onElementClick);
+      if (this.$options.onClick === true) {
+        this.$el.click(this.onElementClick);
+      }
       this.setStaged(null);
       this.uploads = [];
     }
@@ -173,7 +183,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       img = $('<img src="' + e.target.result + '" />');
       crop = this.$options.crop;
       meta = this.getStagedFileMeta();
-      this.$preview = $('<div class="mr-uploader-preview"/>');
+      this.$preview = $('<div class="mr-uploader-preview mr-uploader-ar-' + this.$options.aspectRatio + '"/>');
       previewImage = $('<img />').attr('src', e.target.result);
       this.$preview.html(previewImage);
       this.$previews.prepend(this.$preview);
@@ -189,17 +199,38 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       })(this);
       this.$photos.html(img);
       self = this;
-      img.Jcrop(crop, function() {
+      return img.Jcrop(crop, function() {
         return self.Jcrop = this;
       });
-      return this.updateElementText();
+    };
+
+    MrUploader.prototype.getPreviewWidth = function() {
+      switch (this.$options.aspectRatio) {
+        case 'square':
+        case 'portrait':
+          return 200;
+        case 'landscape':
+          return 300;
+      }
+    };
+
+    MrUploader.prototype.getPreviewHeight = function() {
+      switch (this.$options.aspectRatio) {
+        case 'square':
+        case 'landscape':
+          return 200;
+        case 'portrait':
+          return 300;
+      }
     };
 
     MrUploader.prototype.changePreview = function(crop, $thumbnail) {
-      var rx, ry;
+      var height, rx, ry, width;
       if (this.staged != null) {
-        rx = 300 / crop.w;
-        ry = 200 / crop.h;
+        width = this.getPreviewWidth();
+        height = this.getPreviewHeight();
+        rx = width / crop.w;
+        ry = height / crop.h;
         return $thumbnail.css({
           marginTop: '-' + Math.round(ry * crop.y) + 'px',
           marginLeft: '-' + Math.round(rx * crop.x) + 'px',
@@ -220,16 +251,45 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       };
     };
 
-    MrUploader.prototype.updateElementText = function() {
-      return this.$el.text();
-    };
-
     MrUploader.prototype.onCloseClick = function() {
       return this.hideFullscreen();
     };
 
     MrUploader.prototype.showFullscreen = function() {
       return this.$container.fadeIn();
+    };
+
+    MrUploader.prototype.show = function() {
+      return this.showFullscreen();
+    };
+
+    MrUploader.prototype.setSquareAspectRatio = function() {
+      this.$options.aspectRatio = 'square';
+      this.$options.crop.aspectRatio = 2 / 2;
+      return this.$options.crop.minSize = [200, 200];
+    };
+
+    MrUploader.prototype.setPortraitAspectRatio = function() {
+      this.$options.aspectRatio = 'portrait';
+      this.$options.crop.aspectRatio = 2 / 3;
+      return this.$options.crop.minSize = [200, 300];
+    };
+
+    MrUploader.prototype.setLandscapeAspectRatio = function() {
+      this.$options.aspectRatio = 'landscape';
+      this.$options.crop.aspectRatio = 3 / 2;
+      return this.$options.crop.minSize = [300, 200];
+    };
+
+    MrUploader.prototype.setAspectRatio = function(aspectRatio) {
+      switch (aspectRatio) {
+        case 'square':
+          return this.setSquareAspectRatio();
+        case 'portrait':
+          return this.setPortraitAspectRatio();
+        case 'landscape':
+          return this.setLandscapeAspectRatio();
+      }
     };
 
     MrUploader.prototype.hideFullscreen = function() {
