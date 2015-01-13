@@ -27,7 +27,8 @@
 
         on: (event, callback)=> $(@).on(event, callback)
 
-        onElementClick: =>
+        onElementClick: (e)=>
+            e.preventDefault()
             @showFullscreen()
 
         getHeaderContent: =>
@@ -102,7 +103,8 @@
 
         setStaged: (@staged)=>
 
-        onUploadClick: =>
+        onUploadClick: (e)=>
+            e.preventDefault()
             return alert('Please choose a photo to upload') if not @staged?
 
             url = @$options.uploadUrl

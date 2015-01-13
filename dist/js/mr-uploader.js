@@ -56,7 +56,8 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       return $(this).on(event, callback);
     };
 
-    MrUploader.prototype.onElementClick = function() {
+    MrUploader.prototype.onElementClick = function(e) {
+      e.preventDefault();
       return this.showFullscreen();
     };
 
@@ -118,8 +119,9 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.staged = staged;
     };
 
-    MrUploader.prototype.onUploadClick = function() {
+    MrUploader.prototype.onUploadClick = function(e) {
       var $overlay, crop, meta, photo, request, url;
+      e.preventDefault();
       if (this.staged == null) {
         return alert('Please choose a photo to upload');
       }
