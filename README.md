@@ -61,3 +61,19 @@ jQuery plugin for simplified photo cropping and uploading.
 ```
 
 For more examples please check the `example` folder of this package.
+
+## Event Handlers
+You may attach handlers to events to be notified when they occur.
+
+### Events
+
+#### upload
+This event will be called when an upload is **successfully** completed
+
+```javascript
+upload = $('element').mrUploader();
+upload.on('upload', function (event, data) {
+    // e is the jQuery event
+    // data is the upload data
+});
+```

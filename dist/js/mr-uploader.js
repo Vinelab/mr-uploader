@@ -41,6 +41,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.getCroppingAreaContent = __bind(this.getCroppingAreaContent, this);
       this.getHeaderContent = __bind(this.getHeaderContent, this);
       this.onElementClick = __bind(this.onElementClick, this);
+      this.on = __bind(this.on, this);
       this.$el = $(el);
       this.$options = $.extend({}, this.defaults, options);
       this.addContent();
@@ -50,6 +51,10 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.setStaged(null);
       this.uploads = [];
     }
+
+    MrUploader.prototype.on = function(event, callback) {
+      return $(this).on(event, callback);
+    };
 
     MrUploader.prototype.onElementClick = function() {
       return this.showFullscreen();
@@ -74,7 +79,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       crop.append(this.$input);
       this.$photos = $('<div id="mr-uploader-images">&nbsp;</div>');
       crop.append(this.$photos);
-      upload = $('<button>Upload</button>');
+      upload = $('<button class="btn">Upload</button>');
       upload.click(this.onUploadClick);
       crop.append(upload);
       return crop;
@@ -147,9 +152,10 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
         return function(response, status, xhr) {
           _this.staged.response = response;
           _this.uploads.push(_this.staged);
-          _this.setStaged(null);
           _this.$croppingArea.html(_this.getCroppingAreaContent());
-          return $overlay.html('&#10003');
+          $overlay.html('&#10003');
+          $(_this).trigger('upload', _this.staged);
+          return _this.setStaged(null);
         };
       })(this));
       return request.fail((function(_this) {

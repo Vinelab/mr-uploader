@@ -1,4 +1,4 @@
-/*! MrUploader - v0.1.0 - 2015-01-11
+/*! MrUploader - v0.1.0 - 2015-01-13
 * http://github.com/vinelab/mr-uploader
 * Copyright (c) 2015 Vinelab; Licensed MIT */
 (function(a){a.Jcrop=function(b,c){function i(a){return Math.round(a)+"px"}function j(a){return d.baseClass+"-"+a}function k(){return a.fx.step.hasOwnProperty("backgroundColor")}function l(b){var c=a(b).offset();return[c.left,c.top]}function m(a){return[a.pageX-e[0],a.pageY-e[1]]}function n(b){typeof b!="object"&&(b={}),d=a.extend(d,b),a.each(["onChange","onSelect","onRelease","onDblClick"],function(a,b){typeof d[b]!="function"&&(d[b]=function(){})})}function o(a,b,c){e=l(D),bc.setCursor(a==="move"?a:a+"-resize");if(a==="move")return bc.activateHandlers(q(b),v,c);var d=_.getFixed(),f=r(a),g=_.getCorner(r(f));_.setPressed(_.getCorner(f)),_.setCurrent(g),bc.activateHandlers(p(a,d),v,c)}function p(a,b){return function(c){if(!d.aspectRatio)switch(a){case"e":c[1]=b.y2;break;case"w":c[1]=b.y2;break;case"n":c[0]=b.x2;break;case"s":c[0]=b.x2}else switch(a){case"e":c[1]=b.y+1;break;case"w":c[1]=b.y+1;break;case"n":c[0]=b.x+1;break;case"s":c[0]=b.x+1}_.setCurrent(c),bb.update()}}function q(a){var b=a;return bd.watchKeys
@@ -61,6 +61,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.getCroppingAreaContent = __bind(this.getCroppingAreaContent, this);
       this.getHeaderContent = __bind(this.getHeaderContent, this);
       this.onElementClick = __bind(this.onElementClick, this);
+      this.on = __bind(this.on, this);
       this.$el = $(el);
       this.$options = $.extend({}, this.defaults, options);
       this.addContent();
@@ -70,6 +71,10 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.setStaged(null);
       this.uploads = [];
     }
+
+    MrUploader.prototype.on = function(event, callback) {
+      return $(this).on(event, callback);
+    };
 
     MrUploader.prototype.onElementClick = function() {
       return this.showFullscreen();
@@ -94,7 +99,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       crop.append(this.$input);
       this.$photos = $('<div id="mr-uploader-images">&nbsp;</div>');
       crop.append(this.$photos);
-      upload = $('<button>Upload</button>');
+      upload = $('<button class="btn">Upload</button>');
       upload.click(this.onUploadClick);
       crop.append(upload);
       return crop;
@@ -167,9 +172,10 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
         return function(response, status, xhr) {
           _this.staged.response = response;
           _this.uploads.push(_this.staged);
-          _this.setStaged(null);
           _this.$croppingArea.html(_this.getCroppingAreaContent());
-          return $overlay.html('&#10003');
+          $overlay.html('&#10003');
+          $(_this).trigger('upload', _this.staged);
+          return _this.setStaged(null);
         };
       })(this));
       return request.fail((function(_this) {

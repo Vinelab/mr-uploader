@@ -13,9 +13,11 @@
     <script type="text/javascript" src="/dist/js/mr-uploader.all.min.js"></script>
 
     <script type="text/javascript">
-        console.log($.fn.mrUploader);
         upload = $(".uploader").mrUploader({uploadUrl: '/examples/upload.php'});
-        console.log(upload)
+        upload.on('upload', function(e, data) {
+            console.log('here is the upload event', e);
+            console.log('Upload Completed, here are the data', data);
+        });
     </script>
 </body>
 </html>

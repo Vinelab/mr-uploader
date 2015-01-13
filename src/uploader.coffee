@@ -25,6 +25,8 @@
             # All the uploaded stuff will live here
             @uploads = []
 
+        on: (event, callback)=> $(@).on(event, callback)
+
         onElementClick: =>
             @showFullscreen()
 
@@ -53,8 +55,8 @@
             crop.append(@$photos)
 
             # Add upload button
-            upload = $('<button>Upload</button>')
-            upload.click @onUploadClick
+            upload = $('<button class="btn">Upload</button>')
+            upload.click(@onUploadClick)
 
             crop.append(upload)
 
@@ -129,10 +131,13 @@
                 @staged.response = response
                 # remove staged photo
                 @uploads.push(@staged)
-                @setStaged(null)
                 # reset the cropping area
                 @$croppingArea.html(@getCroppingAreaContent())
                 $overlay.html('&#10003')
+                # tell listeners about the upload
+                $(@).trigger('upload', @staged);
+                # clear the stage
+                @setStaged(null)
             request.fail (xhr, status, error)=>
                 $overlay.addClass('error').html('&times; Upload failed, please retry')
 
