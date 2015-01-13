@@ -75,7 +75,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
     MrUploader.prototype.getCroppingAreaContent = function() {
       var crop, upload;
       crop = $('<div />');
-      this.$input = $('<input type="file" accept="image/*" />').css('padding-bottom', '10px');
+      this.$input = $('<input id="mr-uploader-file-input" type="file" accept="image/*" />');
       this.$input.change(this.onUploaderFileChanged);
       crop.append(this.$input);
       this.$photos = $('<div id="mr-uploader-images">&nbsp;</div>');

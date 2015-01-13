@@ -47,7 +47,7 @@
             crop = $('<div />')
 
             # Add input field
-            @$input = $('<input type="file" accept="image/*" />').css('padding-bottom', '10px')
+            @$input = $('<input id="mr-uploader-file-input" type="file" accept="image/*" />')
             @$input.change @onUploaderFileChanged
             crop.append(@$input)
 

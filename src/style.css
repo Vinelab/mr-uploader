@@ -20,6 +20,11 @@
     text-decoration: none;
 }
 
+#mr-uploader-file-input {
+    margin: 0 auto;
+    padding-bottom: 10px;
+}
+
 #mr-uploader-images {
     min-height: 200px;
 }
