@@ -1,4 +1,4 @@
-/*! MrUploader - v0.1.0 - 2015-01-13
+/*! MrUploader - v0.1.0 - 2015-03-17
 * http://github.com/vinelab/mr-uploader
 * Copyright (c) 2015 Vinelab; Licensed MIT */
 (function(a){a.Jcrop=function(b,c){function i(a){return Math.round(a)+"px"}function j(a){return d.baseClass+"-"+a}function k(){return a.fx.step.hasOwnProperty("backgroundColor")}function l(b){var c=a(b).offset();return[c.left,c.top]}function m(a){return[a.pageX-e[0],a.pageY-e[1]]}function n(b){typeof b!="object"&&(b={}),d=a.extend(d,b),a.each(["onChange","onSelect","onRelease","onDblClick"],function(a,b){typeof d[b]!="function"&&(d[b]=function(){})})}function o(a,b,c){e=l(D),bc.setCursor(a==="move"?a:a+"-resize");if(a==="move")return bc.activateHandlers(q(b),v,c);var d=_.getFixed(),f=r(a),g=_.getCorner(r(f));_.setPressed(_.getCorner(f)),_.setCurrent(g),bc.activateHandlers(p(a,d),v,c)}function p(a,b){return function(c){if(!d.aspectRatio)switch(a){case"e":c[1]=b.y2;break;case"w":c[1]=b.y2;break;case"n":c[0]=b.x2;break;case"s":c[0]=b.x2}else switch(a){case"e":c[1]=b.y+1;break;case"w":c[1]=b.y+1;break;case"n":c[0]=b.x+1;break;case"s":c[0]=b.x+1}_.setCurrent(c),bb.update()}}function q(a){var b=a;return bd.watchKeys
@@ -56,14 +56,20 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.onReaderLoad = __bind(this.onReaderLoad, this);
       this.onUploaderFileChanged = __bind(this.onUploaderFileChanged, this);
       this.onUploadClick = __bind(this.onUploadClick, this);
+      this.onCancelClick = __bind(this.onCancelClick, this);
+      this.resetCroppingArea = __bind(this.resetCroppingArea, this);
       this.setStaged = __bind(this.setStaged, this);
       this.onCroppingSelected = __bind(this.onCroppingSelected, this);
+      this.showPhotoActionElements = __bind(this.showPhotoActionElements, this);
+      this.hidePhotoActionElements = __bind(this.hidePhotoActionElements, this);
       this.getCroppingAreaContent = __bind(this.getCroppingAreaContent, this);
+      this.getRatioOptions = __bind(this.getRatioOptions, this);
       this.getHeaderContent = __bind(this.getHeaderContent, this);
       this.onElementClick = __bind(this.onElementClick, this);
       this.on = __bind(this.on, this);
       this.$el = $(el);
       this.$options = $.extend({}, this.defaults, options);
+      this.photoActionsElements = [];
       this.addContent();
       if (this.$options.onClick === true) {
         this.$el.click(this.onElementClick);
@@ -82,18 +88,57 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
     };
 
     MrUploader.prototype.getHeaderContent = function() {
-      var close, header, title;
+      var close, header, ratioOptions, title;
       header = $('<div/>');
       close = $('<h1><a href="#" class="mr-uploader-fullscreen-close">&times</a></h1>');
       close.click(this.onCloseClick);
       title = $('<h2/>').text('Choose & Crop');
-      header.append(close);
-      header.append(title);
+      ratioOptions = this.getRatioOptions();
+      this.photoActionsElements.push(ratioOptions);
+      header.append(close, title, ratioOptions);
       return header;
     };
 
+    MrUploader.prototype.getRatioOptions = function() {
+      var landscape, landscapeInput, landscapeLabel, portrait, portraitInput, portraitLabel, square, squareInput, squareLabel;
+      squareLabel = $(' <label for="mr-uploader-square-ratio">Square</label> ');
+      squareInput = $(' <input type="radio" id="mr-uploader-square-ratio" name="mr-uploader-ratio" value="square"> ');
+      squareInput.click((function(_this) {
+        return function() {
+          return _this.setSquareAspectRatio();
+        };
+      })(this));
+      if (this.$options.aspectRatio === 'square') {
+        squareInput.attr('checked', true);
+      }
+      square = $('<div />').append(squareLabel, squareInput);
+      portraitLabel = $(' <label for="mr-uploader-portrait-ratio">Portrait</label> ');
+      portraitInput = $(' <input type="radio" id="mr-uploader-portrait-ratio" name="mr-uploader-ratio" value="portrait"> ');
+      if (this.$options.aspectRatio === 'portrait') {
+        portraitInput.attr('checked', true);
+      }
+      portraitInput.click((function(_this) {
+        return function() {
+          return _this.setPortraitAspectRatio();
+        };
+      })(this));
+      portrait = $('<div />').append(portraitLabel, portraitInput);
+      landscapeLabel = $(' <label for="mr-uploader-landscape-ratio">Landscape</label> ');
+      landscapeInput = $(' <input type="radio" id="mr-uploader-landscape-ratio" name="mr-uploader-ratio" value="landscape"> ');
+      if (this.$options.aspectRatio === 'landscape') {
+        landscapeInput.attr('checked', true);
+      }
+      landscapeInput.click((function(_this) {
+        return function() {
+          return _this.setLandscapeAspectRatio();
+        };
+      })(this));
+      landscape = $('<div />').append(landscapeLabel, landscapeInput);
+      return $('<div class="mr-uploader-ratio-options"></div>').append(square).append(portrait).append(landscape);
+    };
+
     MrUploader.prototype.getCroppingAreaContent = function() {
-      var crop, upload;
+      var cancel, crop, upload;
       crop = $('<div />');
       this.$input = $('<input id="mr-uploader-file-input" type="file" accept="image/*" />');
       this.$input.change(this.onUploaderFileChanged);
@@ -102,7 +147,11 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       crop.append(this.$photos);
       upload = $('<button class="btn">Upload</button>');
       upload.click(this.onUploadClick);
+      cancel = $('<button class="btn">Cancel</button>');
+      cancel.click(this.onCancelClick);
+      this.photoActionsElements.push(upload, cancel);
       crop.append(upload);
+      crop.append(cancel);
       return crop;
     };
 
@@ -114,7 +163,30 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.$container.append('<hr />');
       this.$previews = $('<div />');
       this.$container.append(this.$previews);
+      this.hidePhotoActionElements();
       return $('body').append(this.$container);
+    };
+
+    MrUploader.prototype.hidePhotoActionElements = function() {
+      var element, _i, _len, _ref, _results;
+      _ref = this.photoActionsElements;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        element = _ref[_i];
+        _results.push(element.hide());
+      }
+      return _results;
+    };
+
+    MrUploader.prototype.showPhotoActionElements = function() {
+      var element, _i, _len, _ref, _results;
+      _ref = this.photoActionsElements;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        element = _ref[_i];
+        _results.push(element.show());
+      }
+      return _results;
     };
 
     MrUploader.prototype.onCroppingSelected = function(crop, image, meta) {
@@ -137,6 +209,17 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 
     MrUploader.prototype.setStaged = function(staged) {
       this.staged = staged;
+    };
+
+    MrUploader.prototype.resetCroppingArea = function() {
+      this.$croppingArea.html(this.getCroppingAreaContent());
+      return this.hidePhotoActionElements();
+    };
+
+    MrUploader.prototype.onCancelClick = function(e) {
+      this.resetCroppingArea();
+      this.setStaged(null);
+      return this.$preview.remove();
     };
 
     MrUploader.prototype.onUploadClick = function(e) {
@@ -174,7 +257,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
         return function(response, status, xhr) {
           _this.staged.response = response;
           _this.uploads.push(_this.staged);
-          _this.$croppingArea.html(_this.getCroppingAreaContent());
+          _this.resetCroppingArea();
           $overlay.html('&#10003');
           $(_this).trigger('upload', _this.staged);
           return _this.setStaged(null);
@@ -202,7 +285,8 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
           file = _ref[_i];
           reader.readAsDataURL(file);
         }
-        return this.$input.hide();
+        this.$input.hide();
+        return this.showPhotoActionElements();
       }
     };
 
@@ -292,21 +376,30 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
     };
 
     MrUploader.prototype.setSquareAspectRatio = function() {
+      this.$preview.removeClass('mr-uploader-ar-' + this.$options.aspectRatio);
       this.$options.aspectRatio = 'square';
       this.$options.crop.aspectRatio = 2 / 2;
-      return this.$options.crop.minSize = [200, 200];
+      this.$options.crop.minSize = [200, 200];
+      this.Jcrop.setOptions(this.$options.crop);
+      return this.$preview.addClass('mr-uploader-ar-' + this.$options.aspectRatio);
     };
 
     MrUploader.prototype.setPortraitAspectRatio = function() {
+      this.$preview.removeClass('mr-uploader-ar-' + this.$options.aspectRatio);
       this.$options.aspectRatio = 'portrait';
       this.$options.crop.aspectRatio = 2 / 3;
-      return this.$options.crop.minSize = [200, 300];
+      this.$options.crop.minSize = [200, 300];
+      this.Jcrop.setOptions(this.$options.crop);
+      return this.$preview.addClass('mr-uploader-ar-' + this.$options.aspectRatio);
     };
 
     MrUploader.prototype.setLandscapeAspectRatio = function() {
+      this.$preview.removeClass('mr-uploader-ar-' + this.$options.aspectRatio);
       this.$options.aspectRatio = 'landscape';
       this.$options.crop.aspectRatio = 3 / 2;
-      return this.$options.crop.minSize = [300, 200];
+      this.$options.crop.minSize = [300, 200];
+      this.Jcrop.setOptions(this.$options.crop);
+      return this.$preview.addClass('mr-uploader-ar-' + this.$options.aspectRatio);
     };
 
     MrUploader.prototype.setAspectRatio = function(aspectRatio) {

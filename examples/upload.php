@@ -1,7 +1,5 @@
 <?php
 
-sleep(1);
-
 $data = $_POST['photo'];
 $meta = $_POST['meta'];
 
