@@ -54,22 +54,22 @@
 
         getRatioOptions: =>
             squareLabel = $(' <label for="mr-uploader-square-ratio">Square</label> ')
-            squareInput    =  $(' <input type="radio" id="mr-uploader-square-ratio" name="mr-uploader-ratio" value="square"> ')
-            squareInput.click => @setSquareAspectRatio()
-            squareInput.attr('checked', true) if @$options.aspectRatio is 'square'
-            square = $('<div />').append(squareLabel, squareInput)
+            @squareInput    =  $(' <input type="radio" id="mr-uploader-square-ratio" name="mr-uploader-ratio" value="square"> ')
+            @squareInput.click => @setSquareAspectRatio()
+            @squareInput.attr('checked', true) if @$options.aspectRatio is 'square'
+            square = $('<div />').append(squareLabel, @squareInput)
 
             portraitLabel = $(' <label for="mr-uploader-portrait-ratio">Portrait</label> ')
-            portraitInput  = $(' <input type="radio" id="mr-uploader-portrait-ratio" name="mr-uploader-ratio" value="portrait"> ')
-            portraitInput.attr('checked', true) if @$options.aspectRatio is 'portrait'
-            portraitInput.click => @setPortraitAspectRatio()
-            portrait = $('<div />').append(portraitLabel, portraitInput)
+            @portraitInput  = $(' <input type="radio" id="mr-uploader-portrait-ratio" name="mr-uploader-ratio" value="portrait"> ')
+            @portraitInput.attr('checked', true) if @$options.aspectRatio is 'portrait'
+            @portraitInput.click => @setPortraitAspectRatio()
+            portrait = $('<div />').append(portraitLabel, @portraitInput)
 
             landscapeLabel = $(' <label for="mr-uploader-landscape-ratio">Landscape</label> ')
-            landscapeInput = $(' <input type="radio" id="mr-uploader-landscape-ratio" name="mr-uploader-ratio" value="landscape"> ')
-            landscapeInput.attr('checked', true) if @$options.aspectRatio is 'landscape'
-            landscapeInput.click => @setLandscapeAspectRatio()
-            landscape = $('<div />').append(landscapeLabel, landscapeInput)
+            @landscapeInput = $(' <input type="radio" id="mr-uploader-landscape-ratio" name="mr-uploader-ratio" value="landscape"> ')
+            @landscapeInput.attr('checked', true) if @$options.aspectRatio is 'landscape'
+            @landscapeInput.click => @setLandscapeAspectRatio()
+            landscape = $('<div />').append(landscapeLabel, @landscapeInput)
 
             return $('<div class="mr-uploader-ratio-options"></div>')
                 .append(square)
@@ -271,28 +271,34 @@
         show: => @showFullscreen()
 
         setSquareAspectRatio: =>
-            @$preview.removeClass('mr-uploader-ar-'+@$options.aspectRatio)
-            @$options.aspectRatio = 'square'
-            @$options.crop.aspectRatio = 2/2
-            @$options.crop.minSize = [200, 200]
-            @Jcrop.setOptions(@$options.crop)
-            @$preview.addClass('mr-uploader-ar-'+@$options.aspectRatio)
+            if @$options.aspectRatio isnt 'square'
+                @$preview?.removeClass('mr-uploader-ar-'+@$options.aspectRatio)
+                @$options.aspectRatio = 'square'
+                @$options.crop.aspectRatio = 2/2
+                @$options.crop.minSize = [200, 200]
+                @Jcrop?.setOptions(@$options.crop)
+                @$preview?.addClass('mr-uploader-ar-'+@$options.aspectRatio)
+                @squareInput?.attr('checked', true)
 
         setPortraitAspectRatio: =>
-            @$preview.removeClass('mr-uploader-ar-'+@$options.aspectRatio)
-            @$options.aspectRatio = 'portrait'
-            @$options.crop.aspectRatio = 2/3
-            @$options.crop.minSize = [200, 300]
-            @Jcrop.setOptions(@$options.crop)
-            @$preview.addClass('mr-uploader-ar-'+@$options.aspectRatio)
+            if @$options.aspectRatio isnt 'portrait'
+                @$preview?.removeClass('mr-uploader-ar-'+@$options.aspectRatio)
+                @$options.aspectRatio = 'portrait'
+                @$options.crop.aspectRatio = 2/3
+                @$options.crop.minSize = [200, 300]
+                @Jcrop?.setOptions(@$options.crop)
+                @$preview?.addClass('mr-uploader-ar-'+@$options.aspectRatio)
+                @portraitInput?.attr('checked', true)
 
         setLandscapeAspectRatio: =>
-            @$preview.removeClass('mr-uploader-ar-'+@$options.aspectRatio)
-            @$options.aspectRatio = 'landscape'
-            @$options.crop.aspectRatio = 3/2
-            @$options.crop.minSize = [300, 200]
-            @Jcrop.setOptions(@$options.crop)
-            @$preview.addClass('mr-uploader-ar-'+@$options.aspectRatio)
+            if @$options.aspectRatio isnt 'landscape'
+                @$preview?.removeClass('mr-uploader-ar-'+@$options.aspectRatio)
+                @$options.aspectRatio = 'landscape'
+                @$options.crop.aspectRatio = 3/2
+                @$options.crop.minSize = [300, 200]
+                @Jcrop?.setOptions(@$options.crop)
+                @$preview?.addClass('mr-uploader-ar-'+@$options.aspectRatio)
+                @landscapeInput?.attr('checked', true)
 
         setAspectRatio: (aspectRatio)=>
             switch aspectRatio
