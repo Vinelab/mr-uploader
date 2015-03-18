@@ -68,7 +68,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
       this.onElementClick = __bind(this.onElementClick, this);
       this.on = __bind(this.on, this);
       this.$el = $(el);
-      this.$options = $.extend({}, this.defaults, options);
+      this.$options = $.extend(true, {}, this.defaults, options);
       this.photoActionsElements = [];
       this.addContent();
       if (this.$options.onClick === true) {

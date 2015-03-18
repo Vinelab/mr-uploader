@@ -18,7 +18,7 @@
 
         constructor: (el, options)->
             @$el = $(el)
-            @$options = $.extend({}, @defaults, options)
+            @$options = $.extend(true, {}, @defaults, options)
             # The elements that we need to keep hold of, so that we show/hide them based on whether there's
             # a photo staged (chosen for upload) or not, respectively.
             @photoActionsElements = []
